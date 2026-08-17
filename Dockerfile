@@ -1,5 +1,5 @@
 # Stage 1: Build file JAR với Java 26
-FROM maven:3.9.6-eclipse-temurin-26 AS build
+FROM maven:3.9.6-eclipse-temurin:26-jre AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
