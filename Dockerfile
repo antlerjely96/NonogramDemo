@@ -1,21 +1,19 @@
-# Stage 1: Build bằng JDK 26 và Maven Wrapper
+# Stage 1: Dùng JDK 26 và cài đặt Maven trực tiếp
 FROM eclipse-temurin:26-jdk AS build
 WORKDIR /app
 
-# Copy toàn bộ code vào Docker
-COPY . .
+# Cài đặt Maven chuẩn từ kho ứng dụng của Linux (bỏ qua mvnw)
+RUN apt-get update && apt-get install -y maven
 
-# Sửa lỗi ký tự xuống dòng từ Windows (CRLF) sang Linux (LF)
-RUN sed -i 's/\r$//' mvnw
-
-# Cấp quyền thực thi cho file lệnh mvnw
-RUN chmod +x ./mvnw
+# Chỉ copy pom.xml và thư mục src (không cần quan tâm mvnw hay .mvn nữa)
+COPY pom.xml .
+COPY src ./src
 
 # Giới hạn RAM khi build
 ENV MAVEN_OPTS="-Xmx256m"
 
-# Dùng mvnw để build
-RUN ./mvnw clean package -DskipTests
+# Build project bằng lệnh mvn gốc của hệ thống
+RUN mvn clean package -DskipTests
 
 # Stage 2: Chạy ứng dụng với JRE 26
 FROM eclipse-temurin:26-jre
